@@ -1,5 +1,8 @@
 package com.oktoberhackfest.remember;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,9 +12,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.InflateException;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.extras.toolbar.MaterialMenuIconCompat;
@@ -23,6 +29,10 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.oktoberhackfest.remember.realmobjects.RealmPlace;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import io.realm.Realm;
 
@@ -85,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         return true;
                     case R.id.dr_menu_list:
                         activatePlaceList();
+                        break;
+                    case R.id.dr_menu_license:
+                        showLicenses();
+                        break;
                 }
                 return false;
             }
@@ -112,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             @Override
             public void onDrawerStateChanged(int newState) {
-                if(newState == DrawerLayout.STATE_IDLE) {
-                    if(isDrawerOpened) {
+                if (newState == DrawerLayout.STATE_IDLE) {
+                    if (isDrawerOpened) {
                         materialMenu.setState(MaterialMenuDrawable.IconState.ARROW);
                     } else {
                         materialMenu.setState(MaterialMenuDrawable.IconState.BURGER);
@@ -133,6 +147,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         builder = new PlacePicker.IntentBuilder();
 
         activatePlaceList();
+    }
+
+    private void showLicenses() {
+        final View webViewContainer;
+        try {
+            webViewContainer = LayoutInflater.from(this).inflate(R.layout.license_webview_container, null);
+        } catch (InflateException e) {
+            throw new IllegalStateException("This device does not support Web Views.");
+        }
+
+        WebView webView = (WebView) webViewContainer.findViewById(R.id.license_webview);
+
+        try {
+            webView.loadData(readAsset(this, "opensource-licenses.html"), "text/html", "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Licenses")
+                .setView(webViewContainer)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
     private boolean activatePlaceList() {
@@ -214,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (fragment != null) {
                             fragment.getNearPlaceListAdapter().add(
                                     new NearPlaceListItem(place.getName().toString(),
-                                    place.getAddress().toString()));
+                                            place.getAddress().toString()));
                             fragment.getNearPlaceListAdapter().notifyDataSetChanged();
                         }
                     }
@@ -243,5 +285,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (getActionBar() != null) {
             getActionBar().setTitle(title);
         }
+    }
+
+    public static String readAsset(Context context, String path) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        BufferedReader in = new BufferedReader(new InputStreamReader(context.getAssets().open(path), "UTF-8"));
+        String currentString;
+        while ((currentString = in.readLine()) != null)
+            builder.append(currentString);
+        in.close();
+
+        return builder.toString();
     }
 }

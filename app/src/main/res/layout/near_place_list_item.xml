@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:paddingLeft="8dp"
-    android:layout_height="56dp">
+    android:paddingLeft="14dp"
+    android:layout_height="64dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/nearPlaceName"
             android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Lorem ipsum!"/>
+            android:text="Lorem ipsum!"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/nearPlaceAddress"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Lorem Ipsum!"/>
-</LinearLayout>
+            android:text="Lorem Ipsum!"
+            android:layout_below="@id/nearPlaceName"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:paddingRight="4dp"
+            android:id="@+id/savedPlaceDate"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignTop="@id/nearPlaceName"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+
+            android:text="27.10."
+            />
+</RelativeLayout>

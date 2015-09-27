@@ -9,8 +9,13 @@
         android:title="Remember a place" />
     <item
         android:id="@+id/dr_menu_list"
-        android:checked="false"
+        android:checked="true"
         android:icon="@drawable/ic_place_black_24dp"
         android:title="My Places" />
+
+    <item android:id="@+id/dr_menu_license"
+        android:checked="false"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="Info and Licenses"/>
     </group>
 </menu>
