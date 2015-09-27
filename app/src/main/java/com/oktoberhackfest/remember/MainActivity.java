@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private NavigationView navigationView;
     private Realm realm;
     private NearPlaceFragment fragment;
+    private int selectedId;
+    private boolean startWithDrawerOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-        mDrawerLayout.openDrawer(navigationView);
+        if (startWithDrawerOpen) {
+            mDrawerLayout.openDrawer(navigationView);
+        }
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -80,14 +84,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                         return true;
                     case R.id.dr_menu_list:
-                        // update the main content by replacing fragments
-                        fragment = new NearPlaceFragment();
-
-                        FragmentManager fragmentManager = getSupportFragmentManager(); // For AppCompat use getSupportFragmentManager
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.drawer_content, fragment)
-                                .commit();
-                        return true;
+                        activatePlaceList();
                 }
                 return false;
             }
@@ -134,6 +131,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .build();
 
         builder = new PlacePicker.IntentBuilder();
+
+        activatePlaceList();
+    }
+
+    private boolean activatePlaceList() {
+        if (selectedId != R.id.dr_menu_list) {
+            selectedId = R.id.dr_menu_list;
+            // update the main content by replacing fragments
+            fragment = new NearPlaceFragment();
+
+            FragmentManager fragmentManager = getSupportFragmentManager(); // For AppCompat use getSupportFragmentManager
+            fragmentManager.beginTransaction()
+                    .replace(R.id.drawer_content, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -198,7 +212,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         dbPlace.setAddress(place.getAddress().toString());
                         //refresh view
                         if (fragment != null) {
-                            fragment.getNearPlaceListAdapter().add(new NearPlaceListItem(place.getName().toString(),
+                            fragment.getNearPlaceListAdapter().add(
+                                    new NearPlaceListItem(place.getName().toString(),
                                     place.getAddress().toString()));
                             fragment.getNearPlaceListAdapter().notifyDataSetChanged();
                         }
