@@ -254,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         RealmPlace dbPlace = realm.createObject(RealmPlace.class);
                         dbPlace.setName(place.getName().toString());
                         dbPlace.setAddress(place.getAddress().toString());
+                        dbPlace.setDate(getCurrentDate());
                         //refresh view
                         if (fragment != null) {
                             fragment.getNearPlaceListAdapter().add(
