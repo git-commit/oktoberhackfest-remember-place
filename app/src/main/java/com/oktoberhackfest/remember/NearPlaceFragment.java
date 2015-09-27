@@ -26,7 +26,6 @@ import io.realm.RealmResults;
 public class NearPlaceFragment extends ListFragment {
     private List<NearPlaceListItem> mItems;        // ListView items list
     private NearPlaceListAdapter listAdapter;
-    private ViewGroup container;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,15 +34,13 @@ public class NearPlaceFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.container = container;
-
         // initialize the items list
         mItems = new ArrayList<>();
 
         Realm realm = Realm.getInstance(getContext());
         RealmResults<RealmPlace> realmPlaces = realm.allObjects(RealmPlace.class);
         for (RealmPlace pl : realmPlaces) {
-            mItems.add(new NearPlaceListItem(pl.getName(), pl.getAddress()));
+            mItems.add(new NearPlaceListItem(pl.getName(), pl.getAddress(), pl.getDate()));
         }
         // initialize and set the list adapter
         listAdapter = new NearPlaceListAdapter(inflater.getContext(), mItems);

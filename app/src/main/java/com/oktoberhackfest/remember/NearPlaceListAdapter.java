@@ -28,6 +28,7 @@ public class NearPlaceListAdapter extends ArrayAdapter<NearPlaceListItem> {
             viewHolder = new ViewHolder();
             viewHolder.nearPlaceName = (TextView) convertView.findViewById(R.id.nearPlaceName);
             viewHolder.nearPlaceAddress = (TextView) convertView.findViewById(R.id.nearPlaceAddress);
+            viewHolder.nearPlaceDate = (TextView) convertView.findViewById(R.id.savedPlaceDate);
             convertView.setTag(viewHolder);
         } else {
             // recycle the already inflated view
@@ -38,6 +39,7 @@ public class NearPlaceListAdapter extends ArrayAdapter<NearPlaceListItem> {
         NearPlaceListItem item = getItem(position);
         viewHolder.nearPlaceName.setText(item.nearPlaceName);
         viewHolder.nearPlaceAddress.setText(item.nearPlaceAddress);
+        viewHolder.nearPlaceDate.setText(item.nearPlaceDate);
         return convertView;
     }
 
@@ -50,5 +52,6 @@ public class NearPlaceListAdapter extends ArrayAdapter<NearPlaceListItem> {
     private static class ViewHolder {
         TextView nearPlaceName;
         TextView nearPlaceAddress;
+        TextView nearPlaceDate;
     }
 }

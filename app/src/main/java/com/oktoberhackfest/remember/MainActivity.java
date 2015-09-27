@@ -33,6 +33,8 @@ import com.oktoberhackfest.remember.realmobjects.RealmPlace;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import io.realm.Realm;
 
@@ -256,13 +258,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (fragment != null) {
                             fragment.getNearPlaceListAdapter().add(
                                     new NearPlaceListItem(place.getName().toString(),
-                                            place.getAddress().toString()));
+                                            place.getAddress().toString(),
+                                            getCurrentDate()));
                             fragment.getNearPlaceListAdapter().notifyDataSetChanged();
                         }
                     }
                 });
             }
         }
+    }
+
+    private String getCurrentDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.");
+        String currentDateAndTime = sdf.format(new Date());
+        return currentDateAndTime;
     }
 
     @Override
