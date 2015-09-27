@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.extras.toolbar.MaterialMenuIconCompat;
@@ -40,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Toolbar toolbar;
     private NavigationView navigationView;
     private Realm realm;
+    private NearPlaceFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +81,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         return true;
                     case R.id.dr_menu_list:
                         // update the main content by replacing fragments
-                        Fragment fragment = new NearPlaceFragment();
+                        fragment = new NearPlaceFragment();
+
                         FragmentManager fragmentManager = getSupportFragmentManager(); // For AppCompat use getSupportFragmentManager
                         fragmentManager.beginTransaction()
-                                .add(R.id.drawer_content, fragment)
+                                .replace(R.id.drawer_content, fragment)
                                 .commit();
                         return true;
                 }
@@ -184,14 +184,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 final Place place = PlacePicker.getPlace(data, this);
-                String toastMsg = String.format("Place: %s", place.getName());
-                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+                //String toastMsg = String.format("Place: %s", place.getName());
+                //Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+
+
+
+                //commit to db
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         RealmPlace dbPlace = realm.createObject(RealmPlace.class);
                         dbPlace.setName(place.getName().toString());
                         dbPlace.setAddress(place.getAddress().toString());
+                        //refresh view
+                        if (fragment != null) {
+                            fragment.getNearPlaceListAdapter().add(new NearPlaceListItem(place.getName().toString(),
+                                    place.getAddress().toString()));
+                            fragment.getNearPlaceListAdapter().notifyDataSetChanged();
+                        }
                     }
                 });
             }

@@ -1,14 +1,13 @@
 package com.oktoberhackfest.remember;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.oktoberhackfest.remember.realmobjects.RealmPlace;
 
@@ -26,6 +25,8 @@ import io.realm.RealmResults;
  */
 public class NearPlaceFragment extends ListFragment {
     private List<NearPlaceListItem> mItems;        // ListView items list
+    private NearPlaceListAdapter listAdapter;
+    private ViewGroup container;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,20 +35,19 @@ public class NearPlaceFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        this.container = container;
 
         // initialize the items list
         mItems = new ArrayList<>();
 
         Realm realm = Realm.getInstance(getContext());
         RealmResults<RealmPlace> realmPlaces = realm.allObjects(RealmPlace.class);
-        for (RealmPlace pl: realmPlaces) {
+        for (RealmPlace pl : realmPlaces) {
             mItems.add(new NearPlaceListItem(pl.getName(), pl.getAddress()));
         }
-        mItems.add(new NearPlaceListItem("Test", "Test"));
-
         // initialize and set the list adapter
-        ArrayAdapter l = new NearPlaceListAdapter(inflater.getContext(), mItems);
-        setListAdapter(l);
+        listAdapter = new NearPlaceListAdapter(inflater.getContext(), mItems);
+        setListAdapter(listAdapter);
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -57,9 +57,13 @@ public class NearPlaceFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
         // remove the dividers from the ListView of the ListFragment
         getListView().setDivider(null);
-        TextView empty = new TextView(this.getContext());
-        empty.setText("None yet :(");
-        getListView().setEmptyView(empty);
+        /*if (getListView().getEmptyView() == null) {
+            View empty = getLayoutInflater(savedInstanceState).inflate(R.layout.empty_list, container);
+            TextView t = (TextView) empty.findViewById(R.id.textView);
+            t.setText(t.getText() + " " + new String(Character.toChars(0x1F61E)));
+
+            getListView().setEmptyView(empty);
+        }*/
     }
 
     @Override
@@ -68,6 +72,13 @@ public class NearPlaceFragment extends ListFragment {
         NearPlaceListItem item = mItems.get(position);
 
         // do something
-        Toast.makeText(getActivity(), item.nearPlaceName, Toast.LENGTH_SHORT).show();
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + Uri.encode(item.nearPlaceName + ", " + item.nearPlaceAddress));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+    }
+
+    public NearPlaceListAdapter getNearPlaceListAdapter() {
+        return listAdapter;
     }
 }

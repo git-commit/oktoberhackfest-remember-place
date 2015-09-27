@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="None yet :("
+        android:text="None yet"
         android:id="@+id/textView"
         android:textColor="@android:color/black" />
 

@@ -6,9 +6,9 @@
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
         <!-- the toolbar -->
         <include android:id="@+id/tool_bar" layout="@layout/tool_bar" />
 
@@ -16,8 +16,10 @@
         <FrameLayout
             android:id="@+id/drawer_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_below="@id/tool_bar"
+            android:paddingTop="2dp"/>
+    </RelativeLayout>
 
     <!-- The navigation drawer http://www.android4devs.com/2015/06/navigation-view-material-design-support.html -->
     <android.support.design.widget.NavigationView
