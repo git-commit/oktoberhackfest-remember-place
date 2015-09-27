@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.oktoberhackfest.remember.realmobjects.RealmPlace;
+
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private GoogleApiClient mGoogleApiClient;
@@ -34,11 +39,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private boolean googleApiReady = false;
     private Toolbar toolbar;
     private NavigationView navigationView;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        realm = Realm.getInstance(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
@@ -48,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
+
+        mDrawerLayout.openDrawer(navigationView);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -69,6 +79,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 e.printStackTrace();
                             }
                         }
+                        return true;
+                    case R.id.dr_menu_list:
+                        // update the main content by replacing fragments
+                        Fragment fragment = new NearPlaceFragment();
+                        FragmentManager fragmentManager = getSupportFragmentManager(); // For AppCompat use getSupportFragmentManager
+                        fragmentManager.beginTransaction()
+                                .add(R.id.drawer_content, fragment)
+                                .commit();
                         return true;
                 }
                 return false;
@@ -165,9 +183,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(data, this);
+                final Place place = PlacePicker.getPlace(data, this);
                 String toastMsg = String.format("Place: %s", place.getName());
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        RealmPlace dbPlace = realm.createObject(RealmPlace.class);
+                        dbPlace.setName(place.getName().toString());
+                        dbPlace.setAddress(place.getAddress().toString());
+                    }
+                });
             }
         }
     }
