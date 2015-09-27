@@ -3,6 +3,7 @@ package com.oktoberhackfest.remember;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -10,9 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
@@ -27,9 +25,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private GoogleApiClient mGoogleApiClient;
-    private String[] mPlanetTitles;
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
 
     int PLACE_PICKER_REQUEST = 1;
     private PlacePicker.IntentBuilder builder;
@@ -37,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private boolean isDrawerOpened;
     private boolean googleApiReady = false;
     private Toolbar toolbar;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,25 +45,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         materialMenu = new MaterialMenuIconCompat(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
 
-        mPlanetTitles = getResources().getStringArray(R.array.drawer_options);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, mPlanetTitles));
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                //Checking if the item is in checked state or not, if not make it in checked state
+                if (menuItem.isChecked()) menuItem.setChecked(false);
+                else menuItem.setChecked(true);
 
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
+                //Closing drawer on item click
+                mDrawerLayout.closeDrawers();
 
-        builder = new PlacePicker.IntentBuilder();
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()) {
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.dr_menu_remember:
+                        if (googleApiReady) {
+                            try {
+                                startActivityForResult(builder.build(MainActivity.this), PLACE_PICKER_REQUEST);
+                            } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
+
 
         mDrawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
@@ -98,6 +106,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         });
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        builder = new PlacePicker.IntentBuilder();
     }
 
     @Override
@@ -135,20 +153,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
+            if (mDrawerLayout.isDrawerOpen(navigationView)) {
                 mDrawerLayout.closeDrawers();
             } else {
-                mDrawerLayout.openDrawer(mDrawerList);
+                mDrawerLayout.openDrawer(navigationView);
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void toggleMenu() {
-        if (MaterialMenuDrawable.IconState.BURGER.equals(materialMenu.getState())) {
-        } else {
-            materialMenu.animateState(MaterialMenuDrawable.IconState.BURGER);
-        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -173,28 +184,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    public class DrawerItemClickListener implements android.widget.AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(view.getContext(), Integer.toString(position), Toast.LENGTH_LONG).show();
-            switch (position) {
-                case 0:
-                    if (googleApiReady) {
-                        try {
-                            startActivityForResult(builder.build(MainActivity.this), PLACE_PICKER_REQUEST);
-                        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                case 1:
-                    break;
-                case 2:
-                    break;
-            }
-        }
 
     }
 

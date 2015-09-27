@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/drawer_layout">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:fitsSystemWindows="true">
     <!-- The main content view -->
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/fragment"
-        android:name="com.oktoberhackfest.remember.NearPlaceFragment"
-        tools:layout="@layout/activity_main" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include android:id="@+id/tool_bar" layout="@layout/tool_bar" />
+
     <!-- the toolbar -->
-    <include
-        android:id="@+id/tool_bar"
-        layout="@layout/tool_bar"
-        />
-    <!-- The navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/fragment"
+            android:name="com.oktoberhackfest.remember.NearPlaceFragment"
+            tools:layout="@layout/activity_main" android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <!-- The navigation drawer http://www.android4devs.com/2015/06/navigation-view-material-design-support.html -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation_view"
         android:layout_height="match_parent"
+        android:layout_width="wrap_content"
         android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
+        app:itemTextColor="#009688"
+        app:itemIconTint="#2196f3"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer">
+
+    </android.support.design.widget.NavigationView>
+
 </android.support.v4.widget.DrawerLayout>
